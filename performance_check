@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#Set the output file for data
+data_output=/var/zzz_log/performance.log
+
+#Set timestamp format
+date="$(which date)"
+timestamp=`$date '+%Y-%m-%d %H:%M'`
+
+#Check CPU temperature
+cur_temp=$(cat /sys/class/thermal/thermal_zone0/temp)
+cur_temp="$(echo "$cur_temp / 1000" | bc -l | xargs printf "%1.0f")"
+
+#Check RAM usage
+ram_used="$(free -t -m | grep "Mem" | awk '{print $3}')"
+
+#Check 5 minute average load
+read -r loadavg_five rest < /proc/loadavg
+
+#Add readings with a timestamp to output file
+echo "$timestamp ; $cur_temp ; $ram_used ; $loadavg_five" 1>> $data_output
